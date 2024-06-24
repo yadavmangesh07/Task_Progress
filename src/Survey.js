@@ -54,31 +54,43 @@ const SegmentLabel = styled.span`
   color: ${({ active }) => (active ? '#8fcbd3' : '#e0e0e0')};
 `;
 
-const ProgressBar = styled.div`
+const DotBar = styled.div`
   position: relative;
-  height: 10px;
+  margin: 10px 0;
+  height: 20px;
+`;
+
+const ProgressLine = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
   background-color: #e0e0e0;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  z-index: 1;
 `;
 
 const Progress = styled.div`
-  height: 100%;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 4px;
   background-color: #8fcbd3;
-  border-radius: 10px;
-  width: ${({ width }) => width}%;
+  z-index: 2;
   transition: width 0.3s ease; /* Smooth transition */
+  width: ${({ width }) => width}%;
 `;
 
-const DotBar = styled.div`
+const DotContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  margin: 10px 0;
+  position: relative;
+  z-index: 3;
 `;
 
 const Dot = styled.div`
-  width: 10px;
-  height: 10px;
+  width: 14px;
+  height: 14px;
   background-color: ${({ active }) => (active ? '#8fcbd3' : '#e0e0e0')};
   border-radius: 50%;
   cursor: pointer;
@@ -166,19 +178,20 @@ const Survey = () => {
       <QuestionCounter>{currentQuestion + 1}/{questions.length}</QuestionCounter>
       <QuestionContainer>
         <QuestionText>{questions[currentQuestion]}</QuestionText>
-        <ProgressBar>
-          <Progress width={getProgressWidth()} />
-        </ProgressBar>
         <DotBar>
-          {labels.map((label, index) => (
-            <div key={index}>
-              <Dot
-                active={answers[currentQuestion] === index}
-                onClick={() => handleAnswer(index)}
-              />
-              <Label>{label}</Label>
-            </div>
-          ))}
+          <ProgressLine />
+          <Progress width={getProgressWidth()} />
+          <DotContainer>
+            {labels.map((label, index) => (
+              <div key={index}>
+                <Dot
+                  active={answers[currentQuestion] === index}
+                  onClick={() => handleAnswer(index)}
+                />
+                <Label>{label}</Label>
+              </div>
+            ))}
+          </DotContainer>
         </DotBar>
       </QuestionContainer>
       <div style={{ marginTop: '20px', textAlign: 'center' }}>
