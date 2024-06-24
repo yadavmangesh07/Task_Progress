@@ -1,25 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import Survey from './Survey';
 
-function App() {
+const AppContainer = styled.div`
+  text-align: center;
+  background-color: #b1e0e6;
+  height: 100vh;
+`;
+
+const Title = styled.h1`
+  color: #e64c30;
+  background-color: white;
+  font-size: 18px;
+  padding:2%;
+`;
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppContainer>
+      <Title>ARE YOU DISILLUSIONED?</Title>
+      <Survey />
+    </AppContainer>
   );
-}
+};
 
 export default App;
