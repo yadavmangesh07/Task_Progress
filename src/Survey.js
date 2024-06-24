@@ -32,16 +32,15 @@ const QuestionText = styled.p`
 const SegmentedProgressBar = styled.div`
   display: flex;
   justify-content: space-between;
-  /* margin-bottom: 10%; */
+  margin-bottom: 10px; /* Adjusted margin */
 `;
 
 const Segment = styled.div`
   flex: 1;
   position: relative;
   height: 10px;
-  background-color: ${({ progress }) => (progress ? '#8fcbd3' : '#e0e0e0')};
+  background-color: ${({ active }) => (active ? '#8fcbd3' : '#e0e0e0')};
   margin: 0 5px;
-  margin-bottom: 10px;
   border-radius: 10px;
   transition: background-color 0.3s ease; /* Smooth transition */
 `;
@@ -52,43 +51,38 @@ const SegmentLabel = styled.span`
   left: 50%;
   transform: translateX(-50%);
   font-size: 0.8em;
-  color: ${({ progress }) => (progress ? '#8fcbd3' : '#e0e0e0')};
+  color: ${({ active }) => (active ? '#8fcbd3' : '#e0e0e0')};
+`;
+
+const ProgressBar = styled.div`
+  position: relative;
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  margin-bottom: 10px;
+`;
+
+const Progress = styled.div`
+  height: 100%;
+  background-color: #8fcbd3;
+  border-radius: 10px;
+  width: ${({ width }) => width}%;
+  transition: width 0.3s ease; /* Smooth transition */
 `;
 
 const DotBar = styled.div`
-  position: relative;
+  display: flex;
+  justify-content: space-between;
   margin: 10px 0;
 `;
 
-const Line = styled.div`
-  position: absolute;
-  top: 5px;
-  left: 8px;
-  right: 8px;
-  height: 1px;
-  background-color: #e0e0e0;
-`;
-
 const Dot = styled.div`
-  position: relative;
   width: 10px;
   height: 10px;
   background-color: ${({ active }) => (active ? '#8fcbd3' : '#e0e0e0')};
   border-radius: 50%;
   cursor: pointer;
   transition: background-color 0.3s ease; /* Smooth transition */
-  z-index: 1;
-
-  &:hover {
-    background-color: #8fcbd3;
-  }
-`;
-
-const DotContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  position: relative;
-  z-index: 2;
 `;
 
 const Label = styled.span`
@@ -112,6 +106,7 @@ const Button = styled.button`
     cursor: not-allowed;
   }
 `;
+
 const labels = [
   "Strongly Disagree",
   "Disagree",
@@ -124,6 +119,7 @@ const questions = [
   "My leadership journey has progressed as I anticipated.",
   "I have ambitious aims of making a difference.",
   "I have spent fewer than 4 years in full time service or ministry.",
+  "With hard work and determination, I have been able to persevere through the ministry challenges that have come my way."
 ];
 
 const sections = ["IDEALISTIC", "DISILLUSIONED", "CYNICAL", "HOPEFUL"];
@@ -145,39 +141,23 @@ const Survey = () => {
     setCurrentQuestion(currentQuestion - 1);
   };
 
-  const calculateProgress = () => {
-    if (answers.length === 0) {
-      return 0;
-    }
-
-    const responseCounts = [0, 0, 0, 0, 0]; // Array to count each response type
-
-    answers.forEach((answer) => {
-      responseCounts[answer]++;
-    });
-
-    const totalCount = answers.length;
-    const progress = ((responseCounts[0] * 1 +
-                      responseCounts[1] * 2 +
-                      responseCounts[2] * 3 +
-                      responseCounts[3] * 4 +
-                      responseCounts[4] * 5) /
-                      (totalCount * 5)) * 100;
-
-    return progress;
+  const getSectionProgress = (index) => {
+    const questionsPerSection = Math.ceil(questions.length / sections.length);
+    const currentSection = Math.floor(currentQuestion / questionsPerSection);
+    return index <= currentSection;
   };
 
-  const getSegmentProgress = (index) => {
-    const segmentLength = 100 / sections.length;
-    return calculateProgress() >= segmentLength * (index + 1);
+  const getProgressWidth = () => {
+    const currentAnswer = answers[currentQuestion];
+    return currentAnswer !== null ? ((currentAnswer + 1) / labels.length) * 100 : 0;
   };
 
   return (
     <SurveyContainer>
       <SegmentedProgressBar>
         {sections.map((section, index) => (
-          <Segment key={index} progress={getSegmentProgress(index)}>
-            <SegmentLabel progress={getSegmentProgress(index)}>
+          <Segment key={index} active={getSectionProgress(index)}>
+            <SegmentLabel active={getSectionProgress(index)}>
               {section}
             </SegmentLabel>
           </Segment>
@@ -186,19 +166,19 @@ const Survey = () => {
       <QuestionCounter>{currentQuestion + 1}/{questions.length}</QuestionCounter>
       <QuestionContainer>
         <QuestionText>{questions[currentQuestion]}</QuestionText>
+        <ProgressBar>
+          <Progress width={getProgressWidth()} />
+        </ProgressBar>
         <DotBar>
-          <Line />
-          <DotContainer>
-            {labels.map((label, index) => (
-              <div key={index}>
-                <Dot
-                  active={answers[currentQuestion] === index}
-                  onClick={() => handleAnswer(index)}
-                />
-                <Label>{label}</Label>
-              </div>
-            ))}
-          </DotContainer>
+          {labels.map((label, index) => (
+            <div key={index}>
+              <Dot
+                active={answers[currentQuestion] === index}
+                onClick={() => handleAnswer(index)}
+              />
+              <Label>{label}</Label>
+            </div>
+          ))}
         </DotBar>
       </QuestionContainer>
       <div style={{ marginTop: '20px', textAlign: 'center' }}>
